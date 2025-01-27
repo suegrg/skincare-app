@@ -23,4 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
+# Ignore Firebase credentials file
 api/clean-skincare-app-firebase-adminsdk-fbsvc-a738c9eba9.json
