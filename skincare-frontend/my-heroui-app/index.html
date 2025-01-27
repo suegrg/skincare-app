@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Skincare Products App</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f9f9f9;
+        font-family: 'Arial', sans-serif;
+      }
+    </style>
+  </head>
+  <body class="h-screen flex flex-col items-center">
+
+    <!-- Static Header -->
+    <header class="bg-teal-500 text-white py-6 px-4 w-full text-center">
+      <h1 class="text-4xl font-bold text-black">clean. skin. clean skin. care.</h1>
+      <p class="mt-2 text-lg text-black">
+        Find the best clean skincare products and customer reviews.
+      </p>
+    </header>
+
+    <!-- Search Bar Section -->
+    <section class="mt-8 w-full max-w-3xl text-center">
+      <input
+        type="text"
+        id="searchInput"
+        class="p-3 border-2 border-gray-300 rounded-lg w-full mb-4"
+        placeholder="Search for skincare products..."
+      />
+      <button
+        id="searchButton"
+        class="bg-teal-500 text-white px-4 py-2 rounded-lg"
+      >
+        Search
+      </button>
+    </section>
+
+    <!-- Product Cards Section -->
+    <section id="productCards" class="mt-8 w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4">
+      <!-- Product cards will be dynamically injected here -->
+    </section>
+
+    <!-- Pagination Section -->
+    <section id="pagination" class="mt-6 flex justify-center items-center space-x-2">
+      <button id="prevPage" class="bg-gray-300 text-black px-4 py-2 rounded-lg" disabled>Prev</button>
+      <span id="currentPage" class="bg-white text-black px-4 py-2 border rounded-lg">1</span>
+      <button id="nextPage" class="bg-gray-300 text-black px-4 py-2 rounded-lg">Next</button>
+    </section>
+
+    <!-- Product Details Popup -->
+    <div id="productPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+      <div class="bg-white p-8 rounded-lg w-1/2 overflow-y-auto max-h-[80vh]">
+        <h2 id="popupProductName" class="text-2xl font-semibold text-teal-500"></h2>
+        <p id="popupProductType" class="text-lg text-gray-700 mt-2"></p>
+        <p id="popupProductPrice" class="text-lg text-gray-700 mt-2"></p>
+        <p id="popupProductIngredients" class="text-sm text-gray-500 mt-2"></p>
+        <a
+          id="popupProductUrl"
+          href="#"
+          class="text-teal-500 underline mt-4 block"
+          target="_blank"
+        >
+          View Product Page
+        </a>
+        <button
+          id="closePopup"
+          class="mt-4 bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600 transition duration-300"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+      const searchButton = document.getElementById("searchButton");
+      const searchInput = document.getElementById("searchInput");
+      const productCards = document.getElementById("productCards");
+      const prevPage = document.getElementById("prevPage");
+      const nextPage = document.getElementById("nextPage");
+      const currentPage = document.getElementById("currentPage");
+
+      const productPopup = document.getElementById("productPopup");
+      const popupProductName = document.getElementById("popupProductName");
+      const popupProductType = document.getElementById("popupProductType");
+      const popupProductPrice = document.getElementById("popupProductPrice");
+      const popupProductIngredients = document.getElementById("popupProductIngredients");
+      const popupProductUrl = document.getElementById("popupProductUrl");
+      const closePopup = document.getElementById("closePopup");
+
+      let products = []; // Full product list
+      let page = 1; // Current page
+      const productsPerPage = 10; // Number of products per page
+
+      // Fetch products from the API
+      const fetchProducts = async (query = "") => {
+        try {
+          const response = await fetch(`http://localhost:4000/products?query=${query}`);
+          if (!response.ok) {
+            throw new Error("Failed to fetch products");
+          }
+
+          const data = await response.json();
+          products = data.products || [];
+          page = 1; // Reset to the first page on new search
+          renderProducts();
+        } catch (error) {
+          console.error("Error fetching products:", error);
+          productCards.innerHTML = `<p>Error fetching products. Please try again later.</p>`;
+        }
+      };
+
+      // Render products for the current page
+      const renderProducts = () => {
+        const startIndex = (page - 1) * productsPerPage;
+        const endIndex = startIndex + productsPerPage;
+        const currentProducts = products.slice(startIndex, endIndex);
+
+        if (currentProducts.length > 0) {
+          productCards.innerHTML = currentProducts
+            .map((product) => {
+              return `
+                <div class="productCard bg-white border rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300 cursor-pointer">
+                  <h3 class="text-lg font-semibold text-teal-500">${product.product_name}</h3>
+                  <p class="text-gray-700 text-sm">${product.product_type}</p>
+                  <p class="text-gray-500 text-sm">${product.clean_ingreds}</p>
+                </div>
+              `;
+            })
+            .join("");
+        } else {
+          productCards.innerHTML = `<p>No products to display.</p>`;
+        }
+
+        // Update pagination
+        updatePagination();
+      };
+
+      // Update pagination buttons
+      const updatePagination = () => {
+        currentPage.textContent = page;
+        prevPage.disabled = page === 1;
+        nextPage.disabled = page >= Math.ceil(products.length / productsPerPage);
+      };
+
+      // Event listeners for search and pagination
+      searchButton.addEventListener("click", () => {
+        const query = searchInput.value.trim();
+        fetchProducts(query);
+      });
+
+      prevPage.addEventListener("click", () => {
+        if (page > 1) {
+          page--;
+          renderProducts();
+        }
+      });
+
+      nextPage.addEventListener("click", () => {
+        if (page < Math.ceil(products.length / productsPerPage)) {
+          page++;
+          renderProducts();
+        }
+      });
+
+      // Handle product card clicks
+      productCards.addEventListener("click", (e) => {
+        const card = e.target.closest(".productCard");
+        if (card) {
+          const productData = products.find(product => product.product_name === card.querySelector("h3").textContent);
+          
+          popupProductName.textContent = productData.product_name;
+          popupProductType.textContent = productData.product_type;
+          popupProductPrice.textContent = `Price: ${productData.price}`;
+          popupProductIngredients.textContent = `Ingredients: ${productData.clean_ingreds}`;
+          popupProductUrl.href = productData.product_url;
+          productPopup.classList.remove("hidden");
+        }
+      });
+
+      // Close the popup when clicking on the overlay
+      productPopup.addEventListener("click", (e) => {
+        if (e.target === productPopup) {
+          productPopup.classList.add("hidden");
+        }
+      });
+
+      // Close the popup when clicking the close button
+      closePopup.addEventListener("click", () => {
+        productPopup.classList.add("hidden");
+      });
+
+      // Initial load with no query (fetch all products)
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchProducts();
+      });
+    </script>
+  </body>
+</html>
