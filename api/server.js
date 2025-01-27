@@ -33,7 +33,9 @@ app.use(express.json());
 
 const serviceAccount = JSON.parse(
   fs.readFileSync(
-    path.resolve("clean-skincare-app-firebase-adminsdk-fbsvc-a738c9eba9.json")
+    path.resolve(
+      "clean-skincare-app-firebase-adminsdk-fbsvc-6ea8ccd935.json"
+    )
   )
 );
 
