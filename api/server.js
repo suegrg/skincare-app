@@ -31,13 +31,9 @@ app.use(
 
 app.use(express.json());
 
-const serviceAccount = JSON.parse(
-  fs.readFileSync(
-    path.resolve(
-      "clean-skincare-app-firebase-adminsdk-fbsvc-6ea8ccd935.json"
-    )
-  )
-);
+const config = require("./config.json");
+const privateKey = config.FIREBASE_PRIVATE_KEY;
+
 
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert(serviceAccount),
