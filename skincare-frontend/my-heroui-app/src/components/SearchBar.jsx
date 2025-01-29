@@ -1,27 +1,13 @@
-import React, { useState } from "react";
-
 const SearchBar = ({ onSearch }) => {
-  const [query, setQuery] = useState("");
-
-  const handleChange = (e) => setQuery(e.target.value);
-
-  const handleClick = () => {
-    onSearch(query); // Pass search query to parent component (App)
-  };
-
   return (
-    <div className="search-bar">
+    <section className="mt-8 w-full max-w-3xl text-center">
       <input
         type="text"
-        value={query}
-        onChange={handleChange}
+        className="p-3 border-2 border-gray-300 rounded-lg w-full mb-4"
         placeholder="Search for skincare products..."
-        className="search-input"
+        onChange={(e) => onSearch(e.target.value)}
       />
-      <button onClick={handleClick} className="search-button">
-        Search
-      </button>
-    </div>
+    </section>
   );
 };
 

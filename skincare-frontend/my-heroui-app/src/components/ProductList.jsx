@@ -1,17 +1,20 @@
-const ProductList = ({ products }) => {
-  return (
-    <div className="product-list">
-      {products.length > 0 ? (
-        products.map((product) => (
-          <div key={product.id} className="product-card">
-            <h3>{product.product_name}</h3>
-            <p>{product.product_type}</p>
-            <p>{product.clean_ingreds}</p>
-          </div>
-        ))
-      ) : (
-        <p>No products available.</p>
-      )}
-    </div>
-  );
-};
+ import React from "react";
+ import ProductCard from "./ProductCard"; 
+
+ export default function ProductList({ products, onProductClick }) {
+   return (
+     <section className="mt-8 w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4">
+       {products.length === 0 ? (
+         <p>No products available.</p>
+       ) : (
+         products.map((product) => (
+           <ProductCard
+             key={product.product_name}
+             product={product}
+             onClick={() => onProductClick(product)} 
+           />
+         ))
+       )}
+     </section>
+   );
+ }
