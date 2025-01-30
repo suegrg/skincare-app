@@ -1,135 +1,90 @@
 import express from "express";
 import cors from "cors";
 import firebaseAdmin from "firebase-admin";
-import axios from "axios";
 import fs from "fs";
-import path from "path";
 
-// Firebase Admin SDK Initialization
 const app = express();
+app.use(express.json());
 
-const API_URL = "http://localhost:4000/products";
-
-// Your existing function to fetch products remains unchanged
-export const fetchProducts = async (query) => {
-  try {
-    const response = await axios.get(API_URL, {
-      params: { query },
-    });
-    return response;
-  } catch (error) {
-    console.error("Error in fetchProducts:", error);
-    throw new Error("Error fetching products.");
-  }
-};
-
-// ✅ Fix CORS middleware: Remove incorrect URL
+// ✅ FIX: Correct frontend origin without a subdirectory
 app.use(
   cors({
-    origin: "http://localhost:5173", // Fixed frontend URL
-    methods: ["GET", "POST", "OPTIONS"], // Allow OPTIONS for preflight
-    allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+    origin: "http://localhost:5173", // Allow frontend access
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// Handle preflight OPTIONS requests globally
-app.options("*", cors());
-
-app.use(express.json());
-
+// Firebase Admin SDK Initialization
 const config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
-
-// Firebase Admin initialization
 const privateKey = config.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n");
-const serviceAccount = {
-  type: config.type,
-  project_id: config.project_id,
-  private_key_id: config.private_key_id,
-  private_key: privateKey,
-  client_email: config.client_email,
-  client_id: config.client_id,
-  auth_uri: config.auth_uri,
-  token_uri: config.token_uri,
-  auth_provider_x509_cert_url: config.auth_provider_x509_cert_url,
-  client_x509_cert_url: config.client_x509_cert_url,
-};
 
 firebaseAdmin.initializeApp({
-  credential: firebaseAdmin.credential.cert(serviceAccount),
+  credential: firebaseAdmin.credential.cert({
+    ...config,
+    private_key: privateKey,
+  }),
   databaseURL: "https://clean-skincare-app-default-rtdb.firebaseio.com",
 });
 
+// ✅ FIX: Always return JSON, even on the root endpoint
 app.get("/", (req, res) => {
-  res.send("Welcome to the Skincare App API");
+  res.json({ message: "Welcome to the Skincare App API" });
 });
 
+// ✅ FIX: Products API - Always return JSON
 app.get("/products", async (req, res) => {
   try {
-    const { query } = req.query; // Get query parameter
-    console.log("Search Query:", query); // Log query for debugging
+    const query = req.query.query ? req.query.query.toLowerCase() : ""; // Default to empty string
+    console.log("Received query:", query);
+
     const db = firebaseAdmin.database();
     const productsRef = db.ref("products");
-
     const snapshot = await productsRef.once("value");
 
     if (!snapshot.exists()) {
-      return res.status(404).send("No products found");
+      return res.status(200).json({ products: [], total: 0 });
     }
 
     const products = snapshot.val();
-    console.log("Fetched Products:", products); // Log products for debugging
+    console.log("Fetched Products:", products);
 
     let filteredProducts = Object.keys(products)
       .map((key) => {
         let product = { id: key, ...products[key] };
 
-        // Ensure clean_ingreds is handled correctly
-        if (typeof product.clean_ingreds === "string") {
-          try {
-            // Remove extra quotes or incorrect characters before parsing
-            const cleanedString = product.clean_ingreds
-              .replace(/^['"\[]+|['"\]]+$/g, "") // Remove leading/trailing quotes/brackets
-              .replace(/'/g, '"'); // Replace single quotes with double quotes (valid JSON format)
-
-            const ingredientsArray = JSON.parse(`[${cleanedString}]`); // Ensure it's parsed as an array
-            product.clean_ingreds = ingredientsArray.join(" ").toLowerCase(); // Convert to space-separated string
-          } catch (error) {
-            console.error(
-              "Error parsing clean_ingreds:",
-              error,
-              "Value:",
-              product.clean_ingreds
-            );
-            product.clean_ingreds = ""; // Default to empty string if parsing fails
-          }
-        }
-
-        return product;
+        return {
+          id: product.id || "",
+          product_name: product.product_name || "",
+          product_type: product.product_type || "",
+          price: product.price || "",
+          product_url: product.product_url || "",
+          clean_ingreds: product.clean_ingreds || "",
+        };
       })
-      .filter((product) => {
-        const fieldsToSearch = [
-          (product.product_name || "").toLowerCase(),
-          (product.product_type || "").toLowerCase(),
-          (product.clean_ingreds || "").toLowerCase(),
-        ];
+      .filter((product) => product.product_name.toLowerCase().includes(query));
 
-        const combinedFields = fieldsToSearch.join(" ");
-        return query ? combinedFields.includes(query.toLowerCase()) : true;
-      });
+    console.log(
+      "Final Response:",
+      JSON.stringify(
+        { products: filteredProducts, total: filteredProducts.length },
+        null,
+        2
+      )
+    );
 
-    console.log("Filtered Products:", filteredProducts); // Log filtered products
-
-    res.status(200).json({
-      products: filteredProducts,
-      total: filteredProducts.length, // Total count of filtered products
-    });
+    res
+      .status(200)
+      .json({ products: filteredProducts, total: filteredProducts.length });
   } catch (error) {
     console.error("Error fetching products:", error);
-    res.status(500).send("Error fetching products: " + error.message);
+    res.status(500).json({ error: "Error fetching products." });
   }
 });
 
 
+
+// Start Server
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
