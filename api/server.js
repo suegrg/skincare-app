@@ -6,16 +6,14 @@ import fs from "fs";
 const app = express();
 app.use(express.json());
 
-// ✅ FIX: Correct frontend origin without a subdirectory
 app.use(
   cors({
-    origin: "http://localhost:5173", // Allow frontend access
+    origin: "http://localhost:5173", 
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// Firebase Admin SDK Initialization
 const config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
 const privateKey = config.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n");
 
@@ -27,12 +25,10 @@ firebaseAdmin.initializeApp({
   databaseURL: "https://clean-skincare-app-default-rtdb.firebaseio.com",
 });
 
-// ✅ FIX: Always return JSON, even on the root endpoint
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Skincare App API" });
 });
 
-// ✅ FIX: Products API - Always return JSON
 app.get("/products", async (req, res) => {
   try {
     const query = req.query.query ? req.query.query.toLowerCase() : ""; // Default to empty string
@@ -82,9 +78,6 @@ app.get("/products", async (req, res) => {
   }
 });
 
-
-
-// Start Server
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
