@@ -1,9 +1,9 @@
 const admin = require("firebase-admin");
-const serviceAccount = require("./api/clean-skincare-app-firebase-adminsdk-fbsvc-a738c9eba9.json"); 
+const serviceAccount = require("./api/clean-skincare-app-firebase-adminsdk-fbsvc-a738c9eba9.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://clean-skincare-app-default-rtdb.firebaseio.com/", 
+  databaseURL: "https://clean-skincare-app-default-rtdb.firebaseio.com/",
 });
 
 // reference to Firestore
