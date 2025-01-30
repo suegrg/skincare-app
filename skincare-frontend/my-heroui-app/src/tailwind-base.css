@@ -1,0 +1,41 @@
+/* src/tailwind-base.css */
+
+/* A basic reset, normalize default margins, paddings, etc. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  line-height: 1.5;
+}
+
+body {
+  color: #333;
+  background-color: #fff;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: bold;
+}
+
+p {
+  margin: 0;
+}
+
+ul, ol {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Add more custom reset or base styles as needed */

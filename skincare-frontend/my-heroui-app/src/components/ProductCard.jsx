@@ -1,15 +1,22 @@
-// src/components/ProductCard.js
 export default function ProductCard({ product, onClick }) {
   return (
     <div
-      className="productCard bg-white border rounded-lg shadow-md p-6 hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+      className="bg-white border border-gray-200 rounded-xl shadow-lg p-5 hover:shadow-2xl transition duration-300 cursor-pointer flex flex-col items-center"
       onClick={() => onClick(product)}
     >
-      <h3 className="text-lg font-semibold text-teal-500">
+      {/* Product Details */}
+      <h3 className="text-lg font-bold text-teal-600 text-center">
         {product.product_name}
       </h3>
-      <p className="text-gray-700 text-sm">{product.product_type}</p>
-      <p className="text-gray-500 text-sm">{product.clean_ingreds}</p>
+      <p className="text-gray-600 text-sm">{product.product_type}</p>
+      <p className="text-gray-500 text-xs text-center mt-2">
+        {product.clean_ingreds}
+      </p>
+
+      {/* Price */}
+      <p className="mt-3 text-md font-semibold text-teal-700">
+        ${product.price}
+      </p>
     </div>
   );
 }

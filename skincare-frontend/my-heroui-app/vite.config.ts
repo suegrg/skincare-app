@@ -10,5 +10,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"), // Aliasing '@' to 'src' directory
     },
   },
-  base: "/my-heroui-app/",
+  css: {
+    postcss: "./postcss.config.js", // Ensuring PostCSS config is used
+  },
 });

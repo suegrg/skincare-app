@@ -1,51 +1,62 @@
+import React, { useState } from "react";
+import ProductCard from "./ProductCard";
+
 export default function ProductList({ products, onProductClick }) {
-  if (!products || products.length === 0) {
-    return (
-      <div className="text-center text-lg text-gray-600 p-6">
-        No products found
-      </div>
-    );
-  }
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 10;
+
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+
+  const nextPage = () => {
+    if (indexOfLastProduct < products.length) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
-    <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
-      {products.map((product) => (
-        <div
-          key={product.id}
-          className="product-item border rounded-lg shadow-lg overflow-hidden hover:shadow-xl transform transition-all duration-300 hover:scale-105 cursor-pointer"
-          onClick={() => onProductClick(product)}
-        >
-          <div className="h-64 bg-gray-200 flex justify-center items-center">
-            <img
-              alt={product.product_name}
-              className="object-contain h-full w-full"
-              src={product.image || "https://via.placeholder.com/150"}
+    <div className="p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {currentProducts.length > 0 ? (
+          currentProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onClick={onProductClick}
             />
-          </div>
-          <div className="p-4">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              {product.product_name}
-            </h3>
-            <p className="text-sm text-gray-500 mb-2">{product.product_type}</p>
-            <p className="text-lg text-green-600 mb-2">
-              {product.price || "Price not available"}
-            </p>
-            <p className="text-sm text-gray-600 mb-4">
-              {product.clean_ingreds
-                ? product.clean_ingreds.join(", ")
-                : "No ingredients listed"}
-            </p>
-            <a
-              href={product.product_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 text-sm"
-            >
-              View Product
-            </a>
-          </div>
-        </div>
-      ))}
+          ))
+        ) : (
+          <p className="col-span-full text-center text-lg text-gray-500">
+            No products found
+          </p>
+        )}
+      </div>
+      <div className="flex justify-between mt-6">
+        <button
+          onClick={prevPage}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <button
+          onClick={nextPage}
+          disabled={indexOfLastProduct >= products.length}
+          className="px-4 py-2 bg-teal-500 text-white rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 }

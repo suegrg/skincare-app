@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+// App.jsx
+import React, { useState, useEffect } from "react";
 import { firebaseConfig } from "./firebaseConfig";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Header from "./components/Header";
@@ -8,111 +9,139 @@ import SearchBar from "./components/SearchBar";
 import ProductList from "./components/ProductList";
 import ProductOpen from "./components/ProductPopup";
 import Login from "./authorization/Login";
+import "./index.css";
 
-
-const app = initializeApp(firebaseConfig); 
-const auth = getAuth(app); 
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 export default function App() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [token, setToken] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 10;
 
-  const fetchProducts = async (query) => {
-    if (!query) {
-      console.log("Query is empty or undefined");
-      setProducts([]); 
-      return;
-    }
-
-    console.log("Fetching products for query:", query);
-
+  // Fetch products (all by default, filtered by search)
+  const fetchProducts = async (query = "") => {
     try {
-      const headers = {};
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
+      console.log("Fetching products for query:", query);
 
-      const requestUrl = `http://localhost:4000/products?query=${query}`;
-      console.log("Requesting URL:", requestUrl);
+      const response = await fetch(
+        `http://localhost:4000/products?query=${query}`
+      );
 
-      const response = await fetch(requestUrl, {
-        method: "GET",
-        headers,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok)
+        throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data = await response.json();
-      console.log("API Response:", data); 
+      console.log("Parsed Data:", data);
 
-      const processedProducts = data.products.map((product) => ({
-        ...product,
-        clean_ingreds:
-          typeof product.clean_ingreds === "string"
-            ? JSON.parse(product.clean_ingreds.replace(/'/g, '"')) 
-            : product.clean_ingreds,
-      }));
-
-      console.log("Processed Products:", processedProducts); 
-      setProducts(processedProducts); 
+      setProducts(data.products || []);
+      setCurrentPage(1); // Reset to first page on new search
     } catch (error) {
       console.error("Error fetching products:", error);
-      alert("Error fetching products. Check the console for details.");
+      setProducts([]);
     }
   };
 
+  // Fetch all products when user logs in
+  useEffect(() => {
+    if (token) fetchProducts();
+  }, [token]);
+
+  // Listen for authentication state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         user.getIdToken().then((idToken) => {
-          setToken(idToken); 
+          setToken(idToken);
           console.log("Token fetched:", idToken);
         });
       } else {
-        setToken(null); 
+        setToken(null);
       }
     });
 
-    return () => unsubscribe(); 
+    return () => unsubscribe();
   }, []);
+
+  // Logout Function
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setToken(null);
+      console.log("User logged out");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
+  // Pagination logic
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+
+  const nextPage = () => {
+    if (indexOfLastProduct < products.length) setCurrentPage(currentPage + 1);
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
 
   return (
     <Router basename="/my-heroui-app/">
-      {" "}
-      {/* Add base path for deployment */}
-      <div className="h-screen flex flex-col items-center">
+      <div className="flex flex-col items-center w-full min-h-screen">
         {!token ? (
           <Login setToken={setToken} />
         ) : (
           <>
-            <Header />
+            <Header onLogout={handleLogout} />
             <SearchBar onSearch={fetchProducts} />
-            {/* Log products here to ensure they are passed */}
-            {console.log("Products passed to ProductList:", products)}
-
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <ProductList
-                    products={products}
-                    onProductClick={setSelectedProduct}
-                  />
-                }
-              />
-              <Route
-                path="/product/:id"
-                element={
-                  <ProductOpen
-                    product={selectedProduct}
-                    onClose={() => setSelectedProduct(null)}
-                  />
-                }
-              />
-            </Routes>
+            <main className="w-full flex-grow px-4">
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <>
+                      <ProductList
+                        products={currentProducts}
+                        onProductClick={setSelectedProduct}
+                      />
+                      {selectedProduct && (
+                        <ProductOpen
+                          product={selectedProduct}
+                          onClose={() => setSelectedProduct(null)}
+                        />
+                      )}
+                      {/* Pagination Controls */}
+                      <div className="flex justify-between mt-4">
+                        <button
+                          onClick={prevPage}
+                          disabled={currentPage === 1}
+                          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+                        >
+                          Previous
+                        </button>
+                        <span className="text-gray-700">
+                          Page {currentPage}
+                        </span>
+                        <button
+                          onClick={nextPage}
+                          disabled={indexOfLastProduct >= products.length}
+                          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </>
+                  }
+                />
+              </Routes>
+            </main>
           </>
         )}
       </div>
