@@ -1,67 +1,68 @@
-import React, { useEffect, useContext } from "react";
-import { useNavigate } from "react-router";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, signInWithEmailAndPassword } from "../Firebase";
-import AuthContext from "../Components/AuthContext/AuthContext.js";
-import LoginView from "./LoginView";
+import React, { useState } from "react";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
-function Login() {
-  const navigate = useNavigate();
-  const { setUserImpl } = useContext(AuthContext);
+const auth = getAuth();
 
-  const [user, loading, error] = useAuthState(auth);
+const Login = ({ setToken }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleLogin = async (email, password) => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      console.log("User logged in!");
-    } catch (error) {
-      console.error("Error logging in:", error);
-      alert("Failed to log in. Please check your credentials and try again.");
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const token = await userCredential.user.getIdToken();
+      setToken(token); 
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  useEffect(() => {
-    if (loading) {
-      return;
-    }
-    if (user) {
-      setUserImpl(user); // store the user in context when logged in
-      navigate("/dashboard"); // redirect to dashboard if logged in
-    } else {
-      navigate("/"); // redirect to home if not logged in
-    }
-  }, [user, loading, navigate, setUserImpl]);
-
-  if (loading) {
-    return (
-      <div className="wrapper">
-        <p>Initializing user...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="wrapper">
-        <p>Error: {error.message}</p>
-      </div>
-    );
-  }
-
   return (
-    <div
-      style={{
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        background: `url(${pageImage}) no-repeat center center`,
-        backgroundSize: "cover",
-        height: "100vh",
-      }}
-      className="wrapper"
-    >
-      <LoginView onLogin={handleLogin} />
+    <div className="max-w-sm mx-auto p-6 border rounded-lg shadow-lg">
+      <h2 className="text-xl font-semibold mb-4">Login</h2>
+      <form onSubmit={handleLogin}>
+        <div className="mb-4">
+          <label htmlFor="email" className="block text-sm font-medium mb-1">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            className="w-full p-2 border rounded-lg"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label htmlFor="password" className="block text-sm font-medium mb-1">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            className="w-full p-2 border rounded-lg"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <button
+          type="submit"
+          className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600"
+        >
+          Sign In
+        </button>
+      </form>
     </div>
   );
-}
+};
 
 export default Login;

@@ -1,25 +1,62 @@
-const ProductPopup = ({ product, onClose }) => {
-  if (!product) return null;
+import { useParams, useNavigate } from "react-router-dom";
+
+export default function ProductOpen({ product, onClose }) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  if (!product) {
+    return <div>Product not found</div>;
+  }
+
+  const handleBack = () => {
+    navigate("/");
+  };
+
+  const cleanIngredsList = JSON.parse(product.clean_ingreds || "[]");
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg w-1/2 overflow-y-auto max-h-[80vh]">
-        <h2 className="text-2xl font-semibold text-teal-500">
-          {product.product_name}
-        </h2>
-        <p className="text-lg text-gray-700 mt-2">
-          Type: {product.product_type}
-        </p>
-        <p className="text-lg text-gray-700 mt-2">Price: {product.price}</p>
-        <button
-          onClick={onClose}
-          className="mt-4 bg-teal-500 text-black px-4 py-2 rounded-lg"
-        >
-          Close
-        </button>
+    <div className="p-6">
+      <button onClick={handleBack} className="text-blue-500">
+        Back to Products
+      </button>
+      <div className="mt-4">
+        <h2 className="text-2xl font-bold">{product.product_name}</h2>
+        <div className="mt-4">
+          <img
+            src={product.image || "https://via.placeholder.com/150"}
+            alt={product.product_name}
+            className="object-contain w-full h-80"
+          />
+        </div>
+        <div className="mt-4">
+          <h3 className="text-xl font-semibold">
+            Price: {product.price || "N/A"}
+          </h3>
+          <p className="text-sm text-gray-500">{product.product_type}</p>
+
+          <div className="mt-4">
+            <h4 className="font-semibold">Ingredients:</h4>
+            <ul className="list-disc pl-5">
+              {cleanIngredsList.map((ingredient, index) => (
+                <li key={index} className="text-sm">
+                  {ingredient}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-4">
+            <a
+              href={product.product_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600"
+            >
+              View product on LookFantastic
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
-
-export default ProductPopup;
+}
