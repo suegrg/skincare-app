@@ -1,20 +1,30 @@
-import express from "express";
 import cors from "cors";
 import firebaseAdmin from "firebase-admin";
-import fs from "fs";
+import fs from "fs/promises";
+import express from "express";
+import { fileURLToPath } from "url";
+import path from "path";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://localhost:5173", 
+    origin: "http://localhost:4174",
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-const config = JSON.parse(fs.readFileSync("./config.json", "utf-8"));
+
+const config = JSON.parse(
+  await fs.readFile(path.join(__dirname, "..", "config.json")),
+  "utf8"
+);
 const privateKey = config.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n");
 
 firebaseAdmin.initializeApp({
@@ -85,10 +95,4 @@ app.get("/products", async (req, res) => {
   }
 });
 
-
-
-// Start Server
-const port = process.env.PORT || 4000;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+export default app;
