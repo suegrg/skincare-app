@@ -29,6 +29,8 @@ app.get("/", (req, res) => {
   res.json({ message: "Welcome to the Skincare App API" });
 });
 
+const GBP_TO_USD_RATE = 1.36; // Conversion rate (you can update it dynamically using an API if needed)
+
 app.get("/products", async (req, res) => {
   try {
     const query = req.query.query ? req.query.query.toLowerCase() : ""; // Default to empty string
@@ -49,11 +51,16 @@ app.get("/products", async (req, res) => {
       .map((key) => {
         let product = { id: key, ...products[key] };
 
+        // Remove the currency symbol and keep only the numeric value
+        const priceInGBP = product.price
+          ? product.price.replace(/[^\d.-]/g, "")
+          : "0";
+
         return {
           id: product.id || "",
           product_name: product.product_name || "",
           product_type: product.product_type || "",
-          price: product.price || "",
+          price: parseFloat(priceInGBP), // Store only numeric value
           product_url: product.product_url || "",
           clean_ingreds: product.clean_ingreds || "",
         };
@@ -78,6 +85,9 @@ app.get("/products", async (req, res) => {
   }
 });
 
+
+
+// Start Server
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
