@@ -41,18 +41,20 @@ export default function ProductList({ products, onProductClick }) {
           </p>
         )}
       </div>
-      <div className="flex justify-between mt-6">
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-4">
         <button
           onClick={prevPage}
           disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-300 text-gray-700 rounded disabled:opacity-50"
+          className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-50"
         >
           Previous
         </button>
         <button
           onClick={nextPage}
           disabled={indexOfLastProduct >= products.length}
-          className="px-4 py-2 bg-teal-500 text-white rounded disabled:opacity-50"
+          className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-50"
         >
           Next
         </button>

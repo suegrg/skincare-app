@@ -1,4 +1,3 @@
-// App.jsx
 import React, { useState, useEffect } from "react";
 import { firebaseConfig } from "./firebaseConfig";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
@@ -9,7 +8,10 @@ import SearchBar from "./components/SearchBar";
 import ProductList from "./components/ProductList";
 import ProductOpen from "./components/ProductPopup";
 import Login from "./authorization/Login";
-import "./index.css";
+
+import "./index.css"; 
+import "./tailwind-base.css"; 
+import "./tailwind-utilities.css"; 
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -21,7 +23,6 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 10;
 
-  // Fetch products (all by default, filtered by search)
   const fetchProducts = async (query = "") => {
     try {
       console.log("Fetching products for query:", query);
@@ -37,19 +38,19 @@ export default function App() {
       console.log("Parsed Data:", data);
 
       setProducts(data.products || []);
-      setCurrentPage(1); // Reset to first page on new search
+      setCurrentPage(1); // reset to first page on new search
     } catch (error) {
       console.error("Error fetching products:", error);
       setProducts([]);
     }
   };
 
-  // Fetch all products when user logs in
+  // fetch all products when user logs in
   useEffect(() => {
     if (token) fetchProducts();
   }, [token]);
 
-  // Listen for authentication state changes
+  // listen for authentication state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -65,7 +66,7 @@ export default function App() {
     return () => unsubscribe();
   }, []);
 
-  // Logout Function
+  // logout Function
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -76,7 +77,7 @@ export default function App() {
     }
   };
 
-  // Pagination logic
+  // pagination logic
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = products.slice(
@@ -95,6 +96,7 @@ export default function App() {
   return (
     <Router basename="/my-heroui-app/">
       <div className="flex flex-col items-center w-full min-h-screen">
+        {/* This will stack all the components vertically */}
         {!token ? (
           <Login setToken={setToken} />
         ) : (

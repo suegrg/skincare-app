@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 
 const ReviewForm = () => {
-  const [username, setUsername] = useState("");
-  const [rating, setRating] = useState("");
-  const [comment, setComment] = useState("");
+  const [username, setUsername] = useState(""); 
+  const [rating, setRating] = useState(""); 
+  const [comment, setComment] = useState(""); 
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
 
     alert("Thank you for your review!");
 
-    // clear the form after submission
     setUsername("");
     setRating("");
     setComment("");
@@ -32,8 +31,8 @@ const ReviewForm = () => {
           type="text"
           id="username"
           className="w-full p-2 border rounded-lg"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={username} 
+          onChange={(e) => setUsername(e.target.value)} 
           required
         />
       </div>
@@ -45,8 +44,8 @@ const ReviewForm = () => {
         <select
           id="rating"
           className="w-full p-2 border rounded-lg"
-          value={rating}
-          onChange={(e) => setRating(e.target.value)}
+          value={rating} 
+          onChange={(e) => setRating(e.target.value)} 
           required
         >
           <option value="">Select a rating</option>
@@ -66,15 +65,15 @@ const ReviewForm = () => {
           id="comment"
           className="w-full p-2 border rounded-lg"
           rows="4"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
+          value={comment} 
+          onChange={(e) => setComment(e.target.value)} 
           required
         ></textarea>
       </div>
 
       <button
         type="submit"
-        className="bg-teal-500 text-white px-4 py-2 rounded-lg hover:bg-teal-600"
+        className="bg-teal-500 text-black px-4 py-2 rounded-lg hover:bg-teal-600"
       >
         Submit Review
       </button>

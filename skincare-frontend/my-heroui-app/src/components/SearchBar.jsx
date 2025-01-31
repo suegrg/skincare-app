@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Button } from "@heroui/react";
 
 const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState("");
@@ -11,10 +12,10 @@ const SearchBar = ({ onSearch }) => {
   };
 
   return (
-    <div className="flex justify-center items-center mt-10">
+    <div className="flex justify-center items-center mt-10 w-full px-4">
       <form
         onSubmit={handleSubmit}
-        className="flex items-center space-x-4 w-full max-w-lg"
+        className="flex items-center space-x-4 w-full max-w-3xl"
       >
         <input
           type="text"
@@ -23,12 +24,12 @@ const SearchBar = ({ onSearch }) => {
           placeholder="Search for products..."
           className="p-4 w-full border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
         />
-        <button
+        <Button
           type="submit"
-          className="bg-teal-500 text-white py-4 px-6 rounded-lg text-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500"
+          className="bg-teal-500 text-black py-4 px-8 rounded-lg text-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500"
         >
           Search
-        </button>
+        </Button>
       </form>
     </div>
   );
