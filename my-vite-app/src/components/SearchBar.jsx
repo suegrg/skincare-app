@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Button } from "@heroui/react";
 
 const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState("");
@@ -24,12 +23,12 @@ const SearchBar = ({ onSearch }) => {
           placeholder="Search for products..."
           className="p-4 w-full border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
         />
-        <Button
+        <button
           type="submit"
           className="bg-teal-500 text-black py-4 px-8 rounded-lg text-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500"
         >
           Search
-        </Button>
+        </button>
       </form>
     </div>
   );

@@ -9,10 +9,9 @@ import ProductList from "./components/ProductList";
 import ProductOpen from "./components/ProductPopup";
 import Login from "./authorization/Login";
 
-import "./index.css"; 
-import "./tailwind-base.css"; 
-import "./tailwind-utilities.css"; 
+import "./index.css";
 
+// Firebase initialization
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
@@ -23,50 +22,69 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 10;
 
+  // Fetch products from API
   const fetchProducts = async (query = "") => {
     try {
-      console.log("Fetching products for query:", query);
+      // Log the token to ensure it's being set
+      console.log("Using token:", token);
 
       const response = await fetch(
-        `http://localhost:4000/products?query=${query}`
+        `https://api-7gdo5ywt3-sues-projects-d48bc0af.vercel.app/products?query=${query}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "", // Send token if available
+          },
+        }
       );
 
-      if (!response.ok)
+      if (!response.ok) {
+        // Log the error details
+        const errorDetails = await response.text();
+        console.error(
+          `HTTP error! Status: ${response.status}, Details: ${errorDetails}`
+        );
         throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
       const data = await response.json();
-      console.log("Parsed Data:", data);
-
+      console.log("Fetched Data:", data);
       setProducts(data.products || []);
-      setCurrentPage(1); // reset to first page on new search
     } catch (error) {
       console.error("Error fetching products:", error);
-      setProducts([]);
+      setProducts([]); // Optional: You can also show an error message to users here
     }
   };
 
-  // fetch all products when user logs in
+  // Fetch all products when user logs in
   useEffect(() => {
     if (token) fetchProducts();
   }, [token]);
 
-  // listen for authentication state changes
+  // Listen for authentication state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        user.getIdToken().then((idToken) => {
-          setToken(idToken);
-          console.log("Token fetched:", idToken);
-        });
+        user
+          .getIdToken()
+          .then((idToken) => {
+            setToken(idToken); // Store the token
+            console.log("Token fetched:", idToken);
+          })
+          .catch((error) => {
+            console.error("Error fetching token:", error);
+            setToken(null);
+          });
       } else {
         setToken(null);
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribe(); // Cleanup on component unmount
   }, []);
 
-  // logout Function
+  // Logout function
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -77,7 +95,7 @@ export default function App() {
     }
   };
 
-  // pagination logic
+  // Pagination logic
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = products.slice(
@@ -94,16 +112,15 @@ export default function App() {
   };
 
   return (
-    <Router basename="/my-heroui-app/">
-      <div className="flex flex-col items-center w-full min-h-screen">
-        {/* This will stack all the components vertically */}
+    <Router>
+      <div className="flex flex-col items-center w-full min-h-screen bg-gray-100">
         {!token ? (
           <Login setToken={setToken} />
         ) : (
           <>
             <Header onLogout={handleLogout} />
             <SearchBar onSearch={fetchProducts} />
-            <main className="w-full flex-grow px-4">
+            <main className="w-full flex-grow px-4 mt-10">
               <Routes>
                 <Route
                   path="/"

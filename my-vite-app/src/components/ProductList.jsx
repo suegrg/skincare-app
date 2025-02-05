@@ -51,6 +51,7 @@ export default function ProductList({ products, onProductClick }) {
         >
           Previous
         </button>
+
         <button
           onClick={nextPage}
           disabled={indexOfLastProduct >= products.length}
