@@ -8,7 +8,6 @@ import SearchBar from "./components/SearchBar";
 import ProductList from "./components/ProductList";
 import ProductOpen from "./components/ProductPopup";
 import Login from "./authorization/Login";
-
 import "./index.css";
 
 // Firebase initialization
@@ -21,15 +20,13 @@ export default function App() {
   const [token, setToken] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 10;
-
-  // Fetch products from API
+  
   const fetchProducts = async (query = "") => {
     try {
-      // Log the token to ensure it's being set
       console.log("Using token:", token);
 
       const response = await fetch(
-        `https://api-7gdo5ywt3-sues-projects-d48bc0af.vercel.app/products?query=${query}`,
+        `https://api-xi-black.vercel.app/products?query=${query}`,
         {
           method: "GET",
           headers: {
@@ -40,7 +37,6 @@ export default function App() {
       );
 
       if (!response.ok) {
-        // Log the error details
         const errorDetails = await response.text();
         console.error(
           `HTTP error! Status: ${response.status}, Details: ${errorDetails}`
@@ -53,23 +49,21 @@ export default function App() {
       setProducts(data.products || []);
     } catch (error) {
       console.error("Error fetching products:", error);
-      setProducts([]); // Optional: You can also show an error message to users here
+      setProducts([]);  
     }
   };
 
-  // Fetch all products when user logs in
   useEffect(() => {
     if (token) fetchProducts();
   }, [token]);
 
-  // Listen for authentication state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         user
           .getIdToken()
           .then((idToken) => {
-            setToken(idToken); // Store the token
+            setToken(idToken); 
             console.log("Token fetched:", idToken);
           })
           .catch((error) => {
@@ -81,10 +75,9 @@ export default function App() {
       }
     });
 
-    return () => unsubscribe(); // Cleanup on component unmount
+    return () => unsubscribe(); 
   }, []);
 
-  // Logout function
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -95,7 +88,6 @@ export default function App() {
     }
   };
 
-  // Pagination logic
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = products.slice(
