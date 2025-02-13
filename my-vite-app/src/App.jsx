@@ -10,7 +10,7 @@ import ProductOpen from "./components/ProductPopup";
 import Login from "./authorization/Login";
 import "./index.css";
 
-// Firebase initialization
+// firebase initialization
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
@@ -31,7 +31,7 @@ export default function App() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : "", // Send token if available
+            Authorization: token ? `Bearer ${token}` : "", 
           },
         }
       );

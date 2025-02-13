@@ -1,79 +1,91 @@
 import React, { useState } from "react";
+import axios from "axios";
 
-const ReviewForm = ({ onSubmitReview }) => {
-  const [rating, setRating] = useState("");
+export default function ReviewForm({ productId, onReviewSubmit }) {
+  const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
-  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent form submission from refreshing the page
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    // Ensure the review is submitted to the selected product
-    if (selectedProductId) {
-      onSubmitReview(selectedProductId, rating, comment);
+    if (rating < 1 || rating > 5) {
+      setError("Please select a rating between 1 and 5.");
+      return;
     }
 
-    alert("Thank you for your review!");
+    const review = { rating, comment };
 
-    // Reset form values
-    setRating("");
-    setComment("");
-    setSelectedProductId(null);
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/products/${productId}/reviews`,
+        review
+      );
+
+      console.log("Review submitted:", response.data);
+      setSuccess("Review submitted successfully!");
+      setError("");
+      setRating(0);
+      setComment("");
+
+      if (onReviewSubmit) onReviewSubmit();
+    } catch (err) {
+      console.error("Error submitting review:", err);
+      setError("Failed to submit review.");
+    }
   };
 
   return (
-    <form
-      id="reviewForm"
-      className="p-4 border rounded-lg shadow-md max-w-md mx-auto"
-      onSubmit={handleSubmit}
-    >
-      <h2 className="text-2xl font-semibold mb-4">Submit Your Review</h2>
+    <div className="bg-white border border-gray-300 shadow-lg rounded-xl p-6 w-full max-w-lg mx-auto">
+      <h3 className="text-xl font-semibold text-gray-800 mb-4">
+        Leave a Review
+      </h3>
 
-      {/* Rating Input */}
-      <div className="mb-4">
-        <label htmlFor="rating" className="block text-sm font-medium mb-1">
-          Rating
-        </label>
-        <select
-          id="rating"
-          className="w-full p-2 border rounded-lg"
-          value={rating}
-          onChange={(e) => setRating(e.target.value)}
-          required
+      {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+      {success && <p className="text-green-500 text-sm mb-2">{success}</p>}
+
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-5">
+        {/* Rating Selection */}
+        <div className="flex items-center space-x-2">
+          <span className="text-gray-600">Rating:</span>
+          {[1, 2, 3, 4, 5].map((num) => (
+            <button
+              key={num}
+              type="button"
+              className={`w-9 h-9 flex items-center justify-center rounded-full transition font-semibold ${
+                rating === num
+                  ? "bg-teal-500 text-white shadow-lg"
+                  : "bg-gray-100 text-gray-700 hover:bg-teal-100"
+              }`}
+              onClick={() => setRating(num)}
+            >
+              {num}
+            </button>
+          ))}
+        </div>
+
+        {/* REVIEW COMMENTS */}
+        <div className="relative">
+          <textarea
+            className="w-full h-28 p-3 rounded-xl border border-gray-300 bg-white shadow-md focus:ring-2 focus:ring-teal-400 focus:outline-none transition-all"
+            placeholder="Write your review here..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <span className="absolute top-2 right-3 text-gray-400 text-sm">
+            {comment.length}/500
+          </span>
+        </div>
+
+        {/* SUBMIT BUTTON */}
+        <button
+          type="submit"
+          className="bg-gradient-to-r from-teal-500 to-blue-500 text-white py-2 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all"
         >
-          <option value="">Select a rating</option>
-          <option value="5">5 - Excellent</option>
-          <option value="4">4 - Good</option>
-          <option value="3">3 - Average</option>
-          <option value="2">2 - Poor</option>
-          <option value="1">1 - Terrible</option>
-        </select>
-      </div>
-
-      {/* Comment Input */}
-      <div className="mb-4">
-        <label htmlFor="comment" className="block text-sm font-medium mb-1">
-          Comment
-        </label>
-        <textarea
-          id="comment"
-          className="w-full p-2 border rounded-lg"
-          rows="4"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          required
-        ></textarea>
-      </div>
-
-      {/* Submit Button */}
-      <button
-        type="submit"
-        className="bg-teal-500 text-black px-4 py-2 rounded-lg hover:bg-teal-600"
-      >
-        Submit Review
-      </button>
-    </form>
+          Submit Review
+        </button>
+      </form>
+    </div>
   );
-};
-
-export default ReviewForm;
+}
