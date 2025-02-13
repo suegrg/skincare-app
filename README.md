@@ -1,4 +1,5 @@
 ## Clean Skincare App
+https://clean-skincare-app.web.app
 
 Find the best reviewed skincare products that are clean and the best for your skin's needs 
 
@@ -10,5 +11,5 @@ __Features__
 
 __Tech Stack__
 - Frontend: React, Vite, Hero UI
-- Backend: Express, Firebase Database
-- API: https://www.kaggle.com/datasets/eward96/skincare-products-clean-dataset
+- Backend: Express, Firebase Database, Vercel 
+- API: https://api-dr3vb00wv-sues-projects-d48bc0af.vercel.app 
