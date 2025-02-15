@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import axios from "axios";
 
 export default function ReviewForm({ productId, onReviewSubmit }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,24 +15,43 @@ export default function ReviewForm({ productId, onReviewSubmit }) {
       return;
     }
 
+    if (comment.length > 500) {
+      setError("Comment cannot exceed 500 characters.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    setSuccess("");
+
     const review = { rating, comment };
 
     try {
-      const response = await axios.post(
+      const response = await fetch(
         `http://localhost:5000/products/${productId}/reviews`,
-        review
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(review),
+        }
       );
 
-      console.log("Review submitted:", response.data);
+      if (!response.ok) throw new Error("Failed to submit review.");
+
+      const data = await response.json();
+      console.log("Review submitted:", data);
+
       setSuccess("Review submitted successfully!");
-      setError("");
       setRating(0);
       setComment("");
-
       if (onReviewSubmit) onReviewSubmit();
     } catch (err) {
-      console.error("Error submitting review:", err);
-      setError("Failed to submit review.");
+      setError("Error submitting review. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,31 +78,35 @@ export default function ReviewForm({ productId, onReviewSubmit }) {
                   : "bg-gray-100 text-gray-700 hover:bg-teal-100"
               }`}
               onClick={() => setRating(num)}
+              disabled={loading}
             >
               {num}
             </button>
           ))}
         </div>
 
-        {/* REVIEW COMMENTS */}
+        {/* Review Comment */}
         <div className="relative">
           <textarea
             className="w-full h-28 p-3 rounded-xl border border-gray-300 bg-white shadow-md focus:ring-2 focus:ring-teal-400 focus:outline-none transition-all"
             placeholder="Write your review here..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
+            maxLength={500}
+            disabled={loading}
           />
           <span className="absolute top-2 right-3 text-gray-400 text-sm">
             {comment.length}/500
           </span>
         </div>
 
-        {/* SUBMIT BUTTON */}
+        {/* Submit Button */}
         <button
           type="submit"
-          className="bg-gradient-to-r from-teal-500 to-blue-500 text-white py-2 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all"
+          className="bg-gradient-to-r from-teal-500 to-blue-500 text-white py-2 rounded-xl font-semibold hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50"
+          disabled={loading}
         >
-          Submit Review
+          {loading ? "Submitting..." : "Submit Review"}
         </button>
       </form>
     </div>

@@ -129,21 +129,21 @@ export default function App() {
                         />
                       )}
                       {/* Pagination Controls */}
-                      <div className="flex justify-between mt-4">
+                      <div className="flex items-center justify-center space-x-2 mt-4">
                         <button
                           onClick={prevPage}
                           disabled={currentPage === 1}
-                          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+                          className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50 text-xs"
                         >
-                          Previous
+                          Prev
                         </button>
-                        <span className="text-gray-700">
+                        <span className="text-gray-700 text-xs">
                           Page {currentPage}
                         </span>
                         <button
                           onClick={nextPage}
                           disabled={indexOfLastProduct >= products.length}
-                          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+                          className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50 text-xs"
                         >
                           Next
                         </button>
