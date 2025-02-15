@@ -114,7 +114,7 @@ app.post("/reviews/:productId", async (req, res) => {
     return res.status(400).json({ error: "Rating and comment are required" });
   } else if (rating < 1 || rating > 5) {
     return res.status(400).json({
-      error: "Rating must be between 1 and 5"
+      error: "Rating must be between 1 and 5",
     });
   }
 
