@@ -3,7 +3,7 @@ import firebaseAdmin from "firebase-admin";
 import fs from "fs/promises";
 import express from "express";
 import { fileURLToPath } from "url";
-import path from "path";
+import path, { parse } from "path";
 import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -80,9 +80,9 @@ app.get("/products", async (req, res) => {
 });
 
 // New Route: Get reviews for a specific product
-app.get("/reviews/:productId", async (req, res) => {
-  const productId = req.params.productId;
+app.get("/reviews", async (req, res) => {
   try {
+    const productId = req.query.productId ? req.query.productId : "";
     const db = firebaseAdmin.database();
     const reviewsRef = db.ref(`reviews/${productId}`);
     const snapshot = await reviewsRef.once("value");
@@ -107,14 +107,17 @@ app.get("/reviews/:productId", async (req, res) => {
 // New Route: Submit a review for a specific product
 app.post("/reviews/:productId", async (req, res) => {
   const productId = req.params.productId;
-  const { rating, comment } = req.body;
+  const rating = parseInt(req.body.rating);
+  const comment = req.body.comment; // a string
 
   if (!rating || !comment) {
     return res.status(400).json({ error: "Rating and comment are required" });
+  } else if (rating < 1 || rating > 5) {
+    return res.status(400).json({
+      error: "Rating must be between 1 and 5"
+    });
   }
-  app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-  })
+
   try {
     const db = firebaseAdmin.database();
     const reviewsRef = db.ref(`reviews/${productId}`).push(); // Push a new review
