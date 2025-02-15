@@ -10,6 +10,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+const port = 4000;
+const production = false;
+
 app.use(express.json());
 
 app.use(
@@ -126,5 +129,11 @@ app.post("/reviews/:productId", async (req, res) => {
     res.status(500).json({ error: "Error submitting review." });
   }
 });
+
+if (!production) {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
 
 export default app;
