@@ -22,20 +22,20 @@ export default function App() {
   const productsPerPage = 10;
   
   const fetchProducts = async (query = "") => {
+    const production = false;
+
     try {
       console.log("Using token:", token);
-
       const response = await fetch(
-        `https://api-xi-black.vercel.app/products?query=${query}`,
+        !production ? `http://localhost:4000/products?query=${query}` : `https://api-xi-black.vercel.app/products?query=${query}`,
         {
           method: "GET",
-          headers: {
+          headers: { 
             "Content-Type": "application/json",
             Authorization: token ? `Bearer ${token}` : "", 
           },
         }
       );
-
       if (!response.ok) {
         const errorDetails = await response.text();
         console.error(

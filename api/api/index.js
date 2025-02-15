@@ -112,7 +112,9 @@ app.post("/reviews/:productId", async (req, res) => {
   if (!rating || !comment) {
     return res.status(400).json({ error: "Rating and comment are required" });
   }
-
+  app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
+  })
   try {
     const db = firebaseAdmin.database();
     const reviewsRef = db.ref(`reviews/${productId}`).push(); // Push a new review
