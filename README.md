@@ -1,6 +1,6 @@
 ## Clean Skincare App
 
-<img src="https://user-images.githubusercontent.com/25126281/137594073-3b3b3b7b-1b7b-4b7b-8b7b-3b7b3b7b3b7b.png" width="500">
+<img src="https://github.com/suegrg/skincare-app/blob/main/banner.png?raw=true" width="500">
 
 https://clean-skincare-app.web.app
 
