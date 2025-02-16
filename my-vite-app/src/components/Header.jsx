@@ -3,10 +3,10 @@ import React from "react";
 const Header = ({ onLogout }) => {
   return (
     <>
-      <div className="flex justify-end p-4">
+      <div className="flex justify-end">
         <button
           onClick={onLogout}
-          className="py-4 px-8 border border-[#D1C7B7] text-[#333333] rounded-lg text-lg hover:bg-[#F7F7F7] hover:text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#D1C7B7] focus:ring-offset-2 transition duration-200"
+          className="px-8 border border-[#D1C7B7] text-[#333333] rounded-lg text-lg hover:bg-[#F7F7F7] hover:text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#D1C7B7] focus:ring-offset-2 transition duration-200 ease-in-out"
         >
           Logout
         </button>
