@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const port = 4000;
-const production = false;
+const production = true;
 
 app.use(express.json());
 
@@ -37,6 +37,10 @@ firebaseAdmin.initializeApp({
     private_key: privateKey,
   }),
   databaseURL: "https://clean-skincare-app-default-rtdb.firebaseio.com", // Update to your Firebase Realtime Database URL
+});
+
+app.get("/", (req, res) => {
+  res.send("Welcome to Skincare App API!");
 });
 
 // Route to fetch all products
@@ -135,10 +139,10 @@ app.post("/reviews/:productId", async (req, res) => {
   }
 });
 
-if (!production) {
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
-}
+// if (!production) {
+//   app.listen(port, () => {
+//     console.log(`Server running on port ${port}`);
+//   });
+// }
 
 export default app;

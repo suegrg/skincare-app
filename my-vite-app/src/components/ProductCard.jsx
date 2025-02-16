@@ -70,6 +70,7 @@ export default function ProductCard({ product }) {
   // Handle review form submission
   const handleReviewSubmit = async (reviewData) => {
     await submitReview(reviewData, product.id);
+    toggleModal();
     setIsReviewFormOpen(false);
   };
 
@@ -83,20 +84,19 @@ export default function ProductCard({ product }) {
         <h3 className="text-sm sm:text-md font-bold text-[#333333]">
           {product.product_name}
         </h3>
-
-        <p className="mt-3 text-sm font-semibold text-[#333333]">
-          ${product.price}
+        <p className="mt-3 text-sm font-bold text-[#333333]">
+          ${Number(product.price).toFixed(2)}
         </p>
       </div>
 
       {/* POP-UP MODAL */}
       {isModalOpen && (
         <div
-          className="modal-overlay fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50"
+          className="modal-overlay fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50 rounded-2xl"
           onClick={handleOutsideClick}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl p-6 w-full sm:w-[400px] relative border-2 border-[#D1C7B7] z-60"
+            className="bg-white rounded-2xl shadow-2xl p-[3rem] mx-[5rem] sm:w-[400px] relative border-2 border-[#D1C7B7] z-60"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-xl font-bold text-[#333333] mb-4">
