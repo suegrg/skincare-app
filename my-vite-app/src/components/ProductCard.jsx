@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Chip } from "@heroui/react";
 import ReviewForm from "./ReviewForm";
 
 // Function to handle review submission
@@ -13,16 +12,19 @@ const submitReview = async (reviewData, productId) => {
       );
     }
 
-    const response = await fetch(`http://localhost:4000/reviews/${productId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        rating: reviewData.rating,
-        comment: reviewData.review,
-      }),
-    });
+    const response = await fetch(
+      `https://api-xi-black.vercel.app/reviews/${productId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          rating: reviewData.rating,
+          comment: reviewData.review,
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -81,12 +83,6 @@ export default function ProductCard({ product }) {
         <h3 className="text-sm sm:text-md font-bold text-[#333333]">
           {product.product_name}
         </h3>
-
-        <div className="flex justify-center mt-2">
-          <Chip size="sm" className="text-[#333333] px-3 py-1 rounded-full">
-            {product.product_type}
-          </Chip>
-        </div>
 
         <p className="mt-3 text-sm font-semibold text-[#333333]">
           ${product.price}

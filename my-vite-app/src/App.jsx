@@ -22,7 +22,7 @@ export default function App() {
   const productsPerPage = 10;
   
   const fetchProducts = async (query = "") => {
-    const production = false;
+    const production = true;
 
     try {
       console.log("Using token:", token);
