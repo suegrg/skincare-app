@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 export default function ReviewForm({
   onReviewSubmit,
@@ -6,11 +6,26 @@ export default function ReviewForm({
   setReviewData,
   reviewData,
 }) {
-  const handleSubmit = () => {
-    const comment = (reviewData.review || "").trim();
-    const rating = parseInt(reviewData.rating, 10);
-    setReviewData({ ...reviewData, review: comment, rating: rating });
-    onReviewSubmit({ ...reviewData, review: comment, rating: rating });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    const { review, rating } = reviewData;
+    if (!review.trim() || !rating) {
+      alert("Please provide both a comment and rating.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await onReviewSubmit({ ...reviewData, review: review.trim() });
+      setReviewData({ review: "", rating: "1" });
+      onClose();
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error submitting review.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -18,6 +33,7 @@ export default function ReviewForm({
       <h3 className="text-xl font-semibold text-gray-900 mb-4">
         Write a Review
       </h3>
+
       <textarea
         value={reviewData.review}
         onChange={(e) =>
@@ -25,8 +41,8 @@ export default function ReviewForm({
         }
         placeholder="Share your thoughts..."
         className="w-full p-4 border-2 border-[#D1C7B7] rounded-xl bg-white text-black focus:ring-2 focus:ring-[#B8A894] focus:outline-none resize-none text-base shadow-sm"
-        style={{ color: "black", backgroundColor: "white" }}
       />
+
       <div className="flex items-center space-x-3">
         <label htmlFor="rating" className="text-gray-700 font-medium">
           Rating:
@@ -39,13 +55,14 @@ export default function ReviewForm({
           }
           className="p-3 border-2 border-[#D1C7B7] rounded-xl bg-white text-black focus:ring-2 focus:ring-[#B8A894] focus:outline-none text-lg font-semibold shadow-sm"
         >
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
+          {["1", "2", "3", "4", "5"].map((val) => (
+            <option key={val} value={val}>
+              {val}
+            </option>
+          ))}
         </select>
       </div>
+
       <div className="flex justify-end space-x-3">
         <button
           onClick={onClose}
@@ -56,8 +73,9 @@ export default function ReviewForm({
         <button
           onClick={handleSubmit}
           className="border-2 border-[#D1C7B7] bg-[#B8A894] text-white font-medium py-2 px-6 rounded-xl hover:bg-[#A88F7A] transition duration-200"
+          disabled={loading}
         >
-          Submit Review
+          {loading ? "Submitting..." : "Submit Review"}
         </button>
       </div>
     </div>
