@@ -3,7 +3,7 @@ import ReviewForm from "./ReviewForm";
 
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
-// Fetch reviews from the backend
+// fetch reviews from the backend
 const fetchReviews = async (productId, setReviews, setLoading) => {
   if (!productId) {
     console.error("Invalid product ID:", productId);
@@ -18,7 +18,7 @@ const fetchReviews = async (productId, setReviews, setLoading) => {
     const response = await fetch(url);
 
     if (!response.ok) {
-      const responseText = await response.text(); // Get the error response as text
+      const responseText = await response.text(); 
       console.error("Error fetching reviews from server:", responseText);
       throw new Error(
         `HTTP error! Status: ${response.status}, Response: ${responseText}`
@@ -26,9 +26,8 @@ const fetchReviews = async (productId, setReviews, setLoading) => {
     }
 
     const data = await response.json();
-    console.log("Fetched reviews data:", data); // Log the raw response
+    console.log("Fetched reviews data:", data); 
 
-    // Check if the response is an object and contains a 'reviews' array
     if (data && data.reviews && Array.isArray(data.reviews)) {
       setReviews(data.reviews);
     } else {
@@ -44,7 +43,7 @@ const fetchReviews = async (productId, setReviews, setLoading) => {
   }
 };
 
-// Submit a new review
+// submit a new review
 const submitReview = async (reviewData, productId, setReviews) => {
   try {
     if (!productId) {
@@ -54,7 +53,6 @@ const submitReview = async (reviewData, productId, setReviews) => {
 
     console.log("Submitting review:", reviewData);
 
-    // Validate review data
     if (reviewData.rating < 1 || reviewData.rating > 5 || !reviewData.review) {
       throw new Error(
         "Please provide a rating between 1 and 5, and a valid comment."
@@ -62,11 +60,11 @@ const submitReview = async (reviewData, productId, setReviews) => {
     }
 
     const response = await fetch(
-      `/reviews/${productId}`, // Use the relative URL without the localhost part
+      `/reviews/${productId}`, 
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json", // Correct content type for sending JSON
+          "Content-Type": "application/json", 
         },
         body: JSON.stringify({
           rating: reviewData.rating,
@@ -83,11 +81,10 @@ const submitReview = async (reviewData, productId, setReviews) => {
       );
     }
 
-    // Assuming the server returns a success message, you can handle that here
     const result = await response.json();
     console.log("Review submitted successfully:", result.message);
 
-    // Optionally, you can update the reviews list by re-fetching or appending the new review.
+    // update the reviews list by re-fetching or appending the new review.
     setReviews((prevReviews) => [
       ...prevReviews,
       {
@@ -97,7 +94,6 @@ const submitReview = async (reviewData, productId, setReviews) => {
       },
     ]);
 
-    // Show success message using Alert component
     return (
       <Alert>
         <Terminal className="h-4 w-4" />
@@ -145,7 +141,7 @@ export default function ProductCard({ product }) {
     return Math.round(totalRating / reviews.length);
   };
 
-  // Pagination logic
+  // pagination logic
   const totalPages = Math.ceil(reviews.length / reviewsPerPage);
   const indexOfLastReview = currentPage * reviewsPerPage;
   const indexOfFirstReview = indexOfLastReview - reviewsPerPage;

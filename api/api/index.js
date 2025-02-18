@@ -36,17 +36,17 @@ firebaseAdmin.initializeApp({
     ...config,
     private_key: privateKey,
   }),
-  databaseURL: "https://clean-skincare-app-default-rtdb.firebaseio.com", // Update to your Firebase Realtime Database URL
+  databaseURL: "https://clean-skincare-app-default-rtdb.firebaseio.com", // update to your Firebase Realtime Database URL
 });
 
 app.get("/", (req, res) => {
   res.send("Welcome to Skincare App API!");
 });
 
-// Route to fetch all products
+// route to fetch all products
 app.get("/products", async (req, res) => {
   try {
-    const query = req.query.query ? req.query.query.toLowerCase() : ""; // Default to empty string if no query is provided
+    const query = req.query.query ? req.query.query.toLowerCase() : ""; // default to empty string if no query is provided
 
     const db = firebaseAdmin.database();
     const productsRef = db.ref("products");
@@ -83,7 +83,7 @@ app.get("/products", async (req, res) => {
   }
 });
 
-// New Route: Get reviews for a specific product
+// get reviews for a specific product
 app.get("/reviews", async (req, res) => {
   try {
     const productId = req.query.productId ? req.query.productId : "";
@@ -108,7 +108,7 @@ app.get("/reviews", async (req, res) => {
   }
 });
 
-// New Route: Submit a review for a specific product
+// submit a review for a specific product
 app.post("/reviews/:productId", async (req, res) => {
   const productId = req.params.productId;
   const rating = parseInt(req.body.rating);
@@ -124,7 +124,7 @@ app.post("/reviews/:productId", async (req, res) => {
 
   try {
     const db = firebaseAdmin.database();
-    const reviewsRef = db.ref(`reviews/${productId}`).push(); // Push a new review
+    const reviewsRef = db.ref(`reviews/${productId}`).push(); // push a new review
 
     await reviewsRef.set({
       rating,
