@@ -9,6 +9,16 @@ import ProductList from "./components/ProductList";
 import ProductOpen from "./components/ProductPopup";
 import Login from "./authorization/Login";
 import "./index.css";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
 
 // firebase initialization
 const app = initializeApp(firebaseConfig);
@@ -20,19 +30,21 @@ export default function App() {
   const [token, setToken] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 10;
-  
+
   const fetchProducts = async (query = "") => {
     const production = true;
 
     try {
       console.log("Using token:", token);
       const response = await fetch(
-        !production ? `http://localhost:4000/products?query=${query}` : `https://api-xi-black.vercel.app/products?query=${query}`,
+        !production
+          ? `http://localhost:4000/products?query=${query}`
+          : `https://api-xi-black.vercel.app/products?query=${query}`,
         {
           method: "GET",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : "", 
+            Authorization: token ? `Bearer ${token}` : "",
           },
         }
       );
@@ -49,7 +61,7 @@ export default function App() {
       setProducts(data.products || []);
     } catch (error) {
       console.error("Error fetching products:", error);
-      setProducts([]);  
+      setProducts([]);
     }
   };
 
@@ -63,7 +75,7 @@ export default function App() {
         user
           .getIdToken()
           .then((idToken) => {
-            setToken(idToken); 
+            setToken(idToken);
             console.log("Token fetched:", idToken);
           })
           .catch((error) => {
@@ -75,7 +87,7 @@ export default function App() {
       }
     });
 
-    return () => unsubscribe(); 
+    return () => unsubscribe();
   }, []);
 
   const handleLogout = async () => {
@@ -128,22 +140,29 @@ export default function App() {
                           onClose={() => setSelectedProduct(null)}
                         />
                       )}
-                      {/* Pagination Controls */}
-                      <div className="flex items-center justify-center space-x-2 mt-4">
+                      <div className="flex items-center justify-center space-x-6">
+                        {/* previous button */}
                         <button
                           onClick={prevPage}
                           disabled={currentPage === 1}
-                          className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50 text-xs"
+                          className="px-4 py-2 text-sm border border-[#D1C7B7] text-[#333333] rounded-lg hover:bg-[#F7F7F7] hover:text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#D1C7B7] focus:ring-offset-2 transition duration-200 ease-in-out disabled:bg-gray-200 disabled:text-gray-400"
                         >
                           Prev
                         </button>
-                        <span className="text-gray-700 text-xs">
+
+                        {/* curent page */}
+                        <button
+                          className="px-4 py-2 text-sm border border-transparent text-[#333333] bg-gray-100 hover:bg-[#F7F7F7] focus:outline-none focus:ring-2 focus:ring-[#D1C7B7] focus:ring-offset-2 transition duration-200 ease-in-out"
+                          disabled
+                        >
                           Page {currentPage}
-                        </span>
+                        </button>
+
+                        {/* next button */}
                         <button
                           onClick={nextPage}
                           disabled={indexOfLastProduct >= products.length}
-                          className="px-3 py-1 bg-gray-300 rounded disabled:opacity-50 text-xs"
+                          className="px-4 py-2 text-sm border border-[#D1C7B7] text-[#333333] rounded-lg hover:bg-[#F7F7F7] hover:text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#D1C7B7] focus:ring-offset-2 transition duration-200 ease-in-out disabled:bg-gray-200 disabled:text-gray-400"
                         >
                           Next
                         </button>

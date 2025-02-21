@@ -28,19 +28,22 @@ export default function ReviewForm({
     }
   };
 
+  const ratingOptions = ["1", "2", "3", "4", "5"];
+
   return (
     <div className="max-w-sm w-full bg-[#F9F9F9] rounded-2xl p-6 shadow-lg border-2 border-[#D1C7B7] space-y-4 text-left">
       <h3 className="text-xl font-semibold text-gray-900 mb-4">
         Write a Review
       </h3>
 
-      <textarea
+      <input
+        type="text"
         value={reviewData.review}
         onChange={(e) =>
           setReviewData({ ...reviewData, review: e.target.value })
         }
         placeholder="Share your thoughts..."
-        className="w-full p-4 border-2 border-[#D1C7B7] rounded-xl bg-white text-black focus:ring-2 focus:ring-[#B8A894] focus:outline-none resize-none text-base shadow-sm"
+        className="w-full p-4 border-2 border-[#D1C7B7] rounded-xl bg-white text-gray-800 focus:ring-2 focus:ring-[#B8A894] focus:outline-none text-base shadow-sm"
       />
 
       <div className="flex items-center space-x-3">
@@ -53,9 +56,9 @@ export default function ReviewForm({
           onChange={(e) =>
             setReviewData({ ...reviewData, rating: e.target.value })
           }
-          className="p-3 border-2 border-[#D1C7B7] rounded-xl bg-white text-black focus:ring-2 focus:ring-[#B8A894] focus:outline-none text-lg font-semibold shadow-sm"
+          className="p-3 border-2 border-[#D1C7B7] rounded-xl bg-white text-gray-800 focus:ring-2 focus:ring-[#B8A894] focus:outline-none text-lg font-semibold shadow-sm transition-all duration-200 ease-in-out transform hover:scale-105"
         >
-          {["1", "2", "3", "4", "5"].map((val) => (
+          {ratingOptions.map((val) => (
             <option key={val} value={val}>
               {val}
             </option>
@@ -66,7 +69,7 @@ export default function ReviewForm({
       <div className="flex justify-end space-x-3">
         <button
           onClick={onClose}
-          className="border-2 border-[#D1C7B7] text-gray-700 font-medium py-2 px-6 rounded-xl hover:bg-[#F0F0F0] transition duration-200"
+          className="border-2 border-[#D1C7B7] text-white font-medium py-2 px-6 rounded-xl hover:bg-[#F0F0F0] transition duration-200"
         >
           Cancel
         </button>
