@@ -1,33 +1,43 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import {
+  NavigationMenu,
+  NavigationMenuLink,
+} from "@/components/ui/navigation-menu";
 
-const Header = ({ onLogout }) => {
+const Header = ({ token, onLogout }) => {
   return (
-    <>
-      <div className="bg-gray-100 w-full h-12 flex items-center justify-between px-8 border-b border-gray-200">
-        <span className="text-[#333333] text-base font-medium">
-          Welcome, User!
-        </span>
+    <div className="bg-white w-full flex items-center justify-center shadow-lg rounded-b-lg border-b-4 border-gray-200 py-4">
+      <div className="w-full max-w-6xl flex items-center justify-between px-6">
+        <NavigationMenu>
+          <NavigationMenuLink asChild>
+            <Link
+              to="/"
+              className="text-[#333333] text-3xl font-black hover:text-[#D1C7B7] transition duration-300 ease-in-out"
+            >
+              Home
+            </Link>
+          </NavigationMenuLink>
+        </NavigationMenu>
 
-        {/* Logout Button */}
-        <button
-          onClick={onLogout}
-          className="px-4 py-2 text-sm border border-[#D1C7B7] text-[#333333] rounded-lg hover:bg-[#F7F7F7] hover:text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#D1C7B7] focus:ring-offset-2 transition duration-200 ease-in-out"
-        >
-          Logout
-        </button>
+        {/* SIGN IN/LOG OUT BUTTON */}
+        {!token ? (
+          <Link
+            to="/login"
+            className="text-[#333333] text-3xl font-black hover:text-[#D1C7B7] transition duration-300 ease-in-out"
+          >
+            Sign In
+          </Link>
+        ) : (
+          <button
+            onClick={onLogout}
+            className="px-10 py-4 text-xl bg-[#D1C7B7] text-[#333333] rounded-xl font-black hover:bg-[#B9A68C] transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#D1C7B7] focus:ring-offset-2"
+          >
+            Logout
+          </button>
+        )}
       </div>
-
-      <header className="bg-teal-500 text-black py-6 px-4 w-full text-center">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-black">
-            clean. skin. clean skin. care.
-          </h1>
-          <p className="mt-2 text-base text-black">
-            Find the best clean skincare products and customer reviews.
-          </p>
-        </div>
-      </header>
-    </>
+    </div>
   );
 };
 

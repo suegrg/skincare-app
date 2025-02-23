@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { FaStar } from "react-icons/fa";
+import { FaStar, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
+import { Textarea } from "@/components/ui/textarea";
 
 const fetchReviews = async (productId, setReviews, setLoading) => {
   if (!productId) return;
@@ -76,32 +77,56 @@ const ReviewForm = ({ productId, setReviews }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4">
-      <input
-        type="number"
-        value={rating}
-        onChange={(e) => setRating(+e.target.value)}
-        min="1"
-        max="5"
-        className="border p-1"
-      />
-      <textarea
+    <form
+      onSubmit={handleSubmit}
+      className="mt-6 p-4 bg-white shadow-md rounded-lg"
+    >
+      <h3 className="text-lg font-semibold mb-3">Leave a Review</h3>
+
+      {/* Rating Selection */}
+      <div className="flex space-x-2 mb-3">
+        {[1, 2, 3, 4, 5].map((num) => (
+          <button
+            key={num}
+            type="button"
+            onClick={() => setRating(num)}
+            className={`px-4 py-2 rounded-full border border border-[#D1C7B7] transition duration-200 ${
+              rating === num
+                ? "bg-gray-800 text-white border-gray-800"
+                : "bg-gray-200 hover:bg-gray-300 border-gray-400"
+            }`}
+          >
+            {num}
+          </button>
+        ))}
+      </div>
+
+      {/* Larger Review Textarea */}
+      <Textarea
         value={review}
         onChange={(e) => setReview(e.target.value)}
-        className="border p-1 w-full mt-2"
+        className="w-full h-36 border border border-[#D1C7B7] p-3 rounded-lg focus:ring-2 focus:ring-gray-500"
         placeholder="Write your review..."
       />
-      <button type="submit" className="bg-gray-600 text-white px-4 py-2 mt-2">
+
+      {/* Submit Button */}
+      <button
+        type="submit"
+        className="w-full mt-4 border border-[#D1C7B7] bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700 transition duration-200"
+      >
         Submit Review
       </button>
     </form>
   );
 };
 
+
 export default function ProductCard({ product }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [isLoading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const reviewsPerPage = 5;
 
   useEffect(() => {
     if (product?.id) fetchReviews(product.id, setReviews, setLoading);
@@ -112,9 +137,27 @@ export default function ProductCard({ product }) {
     ? Math.round(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length)
     : 0;
 
+  const indexOfLastReview = currentPage * reviewsPerPage;
+  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
+  const paginatedReviews = reviews.slice(indexOfFirstReview, indexOfLastReview);
+
+  const totalPages = Math.ceil(reviews.length / reviewsPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   if (!product?.product_name || !product?.price) {
     return (
-      <div className="product-card bg-white rounded-2xl shadow-md p-4 cursor-pointer w-full max-w-xs sm:max-w-sm lg:max-w-md xl:max-w-lg flex flex-col justify-between text-center mb-4">
+      <div className="product-card bg-white border border-gray-300 shadow-md p-4 cursor-pointer w-full mb-4 rounded-lg">
         <p>Product data is unavailable.</p>
       </div>
     );
@@ -123,77 +166,117 @@ export default function ProductCard({ product }) {
   return (
     <>
       <div
-        className="product-card bg-white rounded-2xl shadow-md p-4 cursor-pointer hover:translate-y-[-5px] hover:shadow-lg border-2 border-[#D1C7B7] hover:border-[#B8A894] w-full max-w-xs sm:max-w-sm lg:max-w-md xl:max-w-lg flex flex-col justify-between text-center mb-4"
+        className="product-card bg-white border border-gray-300 shadow-md p-4 cursor-pointer hover:translate-y-[-5px] hover:shadow-lg w-full sm:w-[350px] md:w-[400px] lg:w-[450px] mb-4 rounded-lg"
         onClick={toggleModal}
       >
         <h3 className="text-sm sm:text-md font-bold text-[#333333] text-left">
           {product?.product_name}
         </h3>
-        {/* Average Rating Chip */}
-        <div className="flex justify-center items-center mt-2 py-1 px-3 rounded-full bg-gray-100 border border-gray-300">
-          <FaStar className="text-gray-500 mr-2" />
-          <span className="text-sm text-[#333333]">{averageRating}</span>
+
+        <div className="flex justify-between items-center mt-2 space-x-2">
+          <div className="flex-grow py-1 px-3 rounded-full bg-gray-100 border border border-[#D1C7B7] text-center text-sm text-[#333333] mt-1">
+            <FaStar className="text-gray-500 mr-2" />
+            <span>{averageRating}</span>
+          </div>
+
+          <div className="flex-grow text-xs py-1 px-3 rounded-full inline-flex justify-center items-center bg-gray-100 border border-[#D1C7B7] text-center">
+            {product?.product_type}
+          </div>
         </div>
-        {/* Product Type Chip */}
-        <p className="mt-1 text-xs py-1 px-3 rounded-full flex justify-center items-center bg-gray-100 border border-gray-300 text-gray-700">
-          {product?.product_type}
+
+        <p className="mt-1 text-xs py-1 px-3 rounded-full block justify-center items-center bg-gray-100 border border border-[#D1C7B7] text-gray-700 text-center">
+          ${Number(product?.price).toFixed(2)}
         </p>
       </div>
+
       {isModalOpen && (
         <div
           className="modal-overlay fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm z-50"
           onClick={toggleModal}
         >
           <div
-            className="bg-white rounded-2xl shadow-2xl p-[3rem] mx-[5rem] sm:w-[400px] relative border-2 border-[#D1C7B7] z-60 overflow-y-auto max-h-[80vh]"
+            className="bg-white shadow-2xl p-[3rem] mx-[5rem] sm:w-[400px] relative border-2 border-[#D1C7B7] rounded-lg z-60 overflow-y-auto max-h-[80vh]"
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-xl font-bold text-[#333333] mb-4">
-              PRODUCT DETAILS
+              Product ID: {product?.id}
             </h3>
             <p className="text-sm sm:text-md text-[#333333]">
               {product?.product_name}
             </p>
-            {/* Average Rating Chip */}
-            <div className="flex justify-center items-center mt-2 py-1 px-3 rounded-full bg-gray-100 border border-gray-300">
-              <FaStar className="text-gray-500 mr-2" />
-              <span className="text-sm text-[#333333]">{averageRating}</span>
+            <div className="flex justify-between items-center mt-2 space-x-2">
+              <div className="flex-grow py-1 px-3 rounded-full bg-gray-100 border border-[#D1C7B7] text-center text-sm text-[#333333] mt-1">
+                <FaStar className="text-gray-500 mr-2" />
+                <span>{averageRating}</span>
+              </div>
+
+              <div className="flex-grow text-xs py-1 px-3 rounded-full inline-flex justify-center items-center bg-gray-100 border border-[#D1C7B7] text-center">
+                {product?.product_type}
+              </div>
             </div>
-            {/* Product Type Chip */}
-            <p className="mt-1 text-xs py-1 px-3 rounded-full flex justify-center items-center bg-gray-100 border border-gray-300 text-gray-700">
-              {product?.product_type}
-            </p>
-            <p className="mt-1 text-xs py-1 px-3 rounded-full flex justify-center items-center bg-gray-100 border border-gray-300 text-gray-700">
+
+            <p className="mt-1 text-xs py-1 px-3 rounded-full block justify-center items-center bg-gray-100 border border border-[#D1C7B7] text-gray-700 text-center">
               ${Number(product?.price).toFixed(2)}
             </p>
+
             <Accordion type="single" collapsible className="mt-4">
               <AccordionItem value="ingredients">
-                <AccordionTrigger>Ingredients</AccordionTrigger>
+                <AccordionTrigger className="border border-[#D1C7B7]">
+                  Ingredients
+                </AccordionTrigger>
                 <AccordionContent>{product?.clean_ingreds}</AccordionContent>
               </AccordionItem>
               <AccordionItem value="customer-reviews">
-                <AccordionTrigger>Customer Reviews</AccordionTrigger>
+                <AccordionTrigger className="border border-[#D1C7B7]">
+                  Customer Reviews
+                </AccordionTrigger>
                 <AccordionContent>
                   {isLoading ? (
                     <p>Loading reviews...</p>
+                  ) : reviews.length === 0 ? (
+                    <p>No reviews yet</p>
                   ) : (
-                    reviews.map((review, index) => (
-                      <div
-                        key={index}
-                        className="mb-2 p-2 border-b border-gray-200"
-                      >
-                        <FaStar className="text-gray-500" />
-                        <span className="ml-2 text-sm">{review.rating}</span>
-                        <p className="text-xs text-gray-600 mt-2">
-                          {review.comment}
-                        </p>
+                    <>
+                      {paginatedReviews.map((review, index) => (
+                        <div
+                          key={index}
+                          className="mb-4 p-4 border border border-[#D1C7B7] rounded-lg shadow-md bg-gray-50 border-gray-300"
+                        >
+                          <div className="flex items-center mb-2">
+                            <FaStar className="text-yellow-500" />
+                            <span className="ml-2 text-sm font-semibold">
+                              {review.rating}
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-700">
+                            {review.comment}
+                          </p>
+                        </div>
+                      ))}
+                      <div className="flex justify-between mt-4">
+                        <button
+                          onClick={handlePrevPage}
+                          className="text-gray-500 p-2 hover:text-gray-700 border border-[#D1C7B7]"
+                          disabled={currentPage === 1}
+                        >
+                          <FaChevronLeft />
+                        </button>
+                        <button
+                          onClick={handleNextPage}
+                          className="text-gray-500 p-2 hover:text-gray-700 border border-[#D1C7B7]"
+                          disabled={currentPage === totalPages}
+                        >
+                          <FaChevronRight />
+                        </button>
                       </div>
-                    ))
+                    </>
                   )}
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="leave-review">
-                <AccordionTrigger>Leave a Review</AccordionTrigger>
+              <AccordionItem value="leave-review border border-[#D1C7B7]">
+                <AccordionTrigger className="border border-[#D1C7B7]">
+                  Leave a Review
+                </AccordionTrigger>
                 <AccordionContent>
                   <ReviewForm productId={product.id} setReviews={setReviews} />
                 </AccordionContent>
